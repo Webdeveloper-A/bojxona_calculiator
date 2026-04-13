@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bojxona Yig'imlari Kalkulyatori Pro</title>
+  <meta name="description" content="VM 55 asosida bojxona yig'imlarini hisoblaydigan tayyor ishlaydigan web-ilova" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="hero panel">
+      <div class="hero-copy">
+        <div class="eyebrow">VM 55 · 31.01.2025 · amaliy kalkulyator</div>
+        <h1>Bojxona Yig'imlari Kalkulyatori Pro</h1>
+        <p>
+          Bu demo emas. BYD, qo‘shimcha xizmatlar, saqlash, hamrohlik, kuryer jo‘natmalari va vaqtincha saqlash
+          bo‘yicha real formulalar bilan ishlaydigan mustaqil web-ilova.
+        </p>
+        <div class="hero-actions">
+          <button id="refreshRatesBtn" class="btn btn-primary">USD kursini yangilash</button>
+          <button id="printBtn" class="btn btn-secondary">Hisobotni chop etish</button>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <span>USD kursi</span>
+          <strong id="heroUsd">12 158.59 so'm</strong>
+          <small id="heroUsdMeta">CBU bo'yicha</small>
+        </div>
+        <div class="stat-card">
+          <span>BHM</span>
+          <strong id="heroBhm">412 000 so'm</strong>
+          <small>Qo'lda o'zgartiriladi</small>
+        </div>
+        <div class="stat-card">
+          <span>Asosiy hujjat</span>
+          <strong>VM 55</strong>
+          <small>1-ilova</small>
+        </div>
+        <div class="stat-card">
+          <span>Saqlash</span>
+          <strong>Tarix mavjud</strong>
+          <small>localStorage</small>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar panel">
+        <h2>Navigatsiya</h2>
+        <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="nav-btn" data-tab="byd">BYD kalkulyator</button>
+        <button class="nav-btn" data-tab="services">Qo'shimcha xizmatlar</button>
+        <button class="nav-btn" data-tab="rates">Stavkalar jadvali</button>
+        <button class="nav-btn" data-tab="report">Hisobot va tarix</button>
+        <div class="sidebar-note">
+          <p>Zaif joy: BHM yoki normativ o'zgarsa natija ham o'zgaradi.</p>
+          <p>Shuning uchun ilova BHM va USD kursini edit qilishga ruxsat beradi.</p>
+        </div>
+      </aside>
+
+      <section class="content">
+        <section id="dashboard" class="tab panel">
+          <div class="section-head">
+            <div>
+              <h2>Umumiy ko'rinish</h2>
+              <p>Eng ko'p ishlatiladigan ssenariylar va stavka grafigi shu yerda.</p>
+            </div>
+            <span class="badge">Tez start</span>
+          </div>
+
+          <div class="quick-grid" id="scenarioCards"></div>
+
+          <div class="panel-inner chart-card">
+            <div class="sub-head">
+              <h3>BYD stavkalari grafigi</h3>
+              <p>Qiymat oshgani sari BHM ko'paytmasi bosqichma-bosqich o'sadi.</p>
+            </div>
+            <canvas id="rateChart" width="900" height="320" aria-label="BYD stavkalari grafigi"></canvas>
+          </div>
+        </section>
+
+        <section id="byd" class="tab panel hidden">
+          <div class="section-head">
+            <div>
+              <h2>BYD bo'yicha bojxona rasmiylashtiruvi</h2>
+              <p>Import/eksport uchun asosiy hisob-kitob shu yerda qilinadi.</p>
+            </div>
+            <span class="badge">Asosiy modul</span>
+          </div>
+
+          <div class="form-grid two">
+            <div>
+              <label for="bydCustomsUsd">Bojxona qiymati (USD)</label>
+              <input id="bydCustomsUsd" type="number" min="0" step="0.01" value="25000" />
+            </div>
+            <div>
+              <label for="bydUsdRate">USD kursi (so'm)</label>
+              <input id="bydUsdRate" type="number" min="0" step="0.01" value="12158.59" />
+            </div>
+            <div>
+              <label for="bydBhm">BHM (so'm)</label>
+              <input id="bydBhm" type="number" min="0" step="1" value="412000" />
+            </div>
+            <div>
+              <label for="bydMode">Deklaratsiya holati</label>
+              <select id="bydMode">
+                <option value="standard">Standart</option>
+                <option value="preliminary">Dastlabki deklaratsiyalash</option>
+              </select>
+            </div>
+            <div>
+              <label for="bydRegime">Rejim</label>
+              <select id="bydRegime">
+                <option value="normal">Oddiy import/eksport</option>
+                <option value="exempt">Vaqtincha saqlash / davlat foydasiga voz kechish / yo'q qilish</option>
+              </select>
+            </div>
+            <div>
+              <label for="bydNotes">Izoh</label>
+              <input id="bydNotes" type="text" placeholder="Masalan: 1-konteyner, 2-partiya" />
+            </div>
+          </div>
+
+          <div class="checkbox-row">
+            <input id="applyDiscount" type="checkbox" checked />
+            <label for="applyDiscount">Dastlabki deklaratsiyalash bo'lsa 20% chegirma qo'llansin</label>
+          </div>
+
+          <div class="actions-row">
+            <button id="calcBydBtn" class="btn btn-primary">Hisoblash</button>
+            <button id="saveBydBtn" class="btn btn-secondary">Tarixga saqlash</button>
+          </div>
+
+          <div class="result-card" id="bydResult">
+            <div class="metric-grid four">
+              <div class="metric"><span>Interval</span><strong id="bydRange">20 000 - 40 000 USD</strong></div>
+              <div class="metric"><span>Stavka</span><strong id="bydMultiplier">BHM 2.5x</strong></div>
+              <div class="metric"><span>Jami</span><strong id="bydTotal">1 030 000 so'm</strong></div>
+              <div class="metric"><span>USD ekvivalenti</span><strong id="bydTotalUsd">84.72 USD</strong></div>
+            </div>
+            <div class="explain" id="bydExplain"></div>
+          </div>
+        </section>
+
+        <section id="services" class="tab panel hidden">
+          <div class="section-head">
+            <div>
+              <h2>Qo'shimcha xizmatlar kalkulyatori</h2>
+              <p>Bir xil formula hamma joyda ishlamaydi. Xizmatga qarab inputlar o'zgaradi.</p>
+            </div>
+            <span class="badge">Murakkab modul</span>
+          </div>
+
+          <div class="form-grid two">
+            <div>
+              <label for="serviceType">Xizmat turi</label>
+              <select id="serviceType"></select>
+            </div>
+            <div>
+              <label for="serviceBhm">BHM (so'm)</label>
+              <input id="serviceBhm" type="number" min="0" step="1" value="412000" />
+            </div>
+          </div>
+
+          <div id="serviceDynamicFields" class="dynamic-fields"></div>
+
+          <div class="actions-row">
+            <button id="calcServiceBtn" class="btn btn-primary">Hisoblash</button>
+            <button id="saveServiceBtn" class="btn btn-secondary">Tarixga saqlash</button>
+          </div>
+
+          <div class="result-card">
+            <div class="metric-grid four">
+              <div class="metric"><span>Formula</span><strong id="serviceFormula">BHM × 0.25 × qty</strong></div>
+              <div class="metric"><span>Normallashtirilgan birlik</span><strong id="serviceNormalized">1</strong></div>
+              <div class="metric"><span>Jami</span><strong id="serviceTotal">103 000 so'm</strong></div>
+              <div class="metric"><span>Izoh</span><strong id="serviceShortNote">Bir deklaratsiya</strong></div>
+            </div>
+            <div class="explain" id="serviceExplain"></div>
+          </div>
+        </section>
+
+        <section id="rates" class="tab panel hidden">
+          <div class="section-head">
+            <div>
+              <h2>Stavkalar jadvali</h2>
+              <p>VM 55 bo'yicha ishlatilgan barcha asosiy stavkalar bir joyda.</p>
+            </div>
+            <span class="badge">Nazorat</span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Bo'lim</th>
+                  <th>Xizmat / interval</th>
+                  <th>Stavka</th>
+                  <th>Formula eslatmasi</th>
+                </tr>
+              </thead>
+              <tbody id="ratesBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="report" class="tab panel hidden">
+          <div class="section-head">
+            <div>
+              <h2>Hisobot va tarix</h2>
+              <p>Saqlangan natijalar, tez qayta ko'rish va eksport qilish.</p>
+            </div>
+            <span class="badge">localStorage</span>
+          </div>
+
+          <div class="actions-row compact">
+            <button id="exportJsonBtn" class="btn btn-secondary">JSON eksport</button>
+            <button id="clearHistoryBtn" class="btn btn-danger">Tarixni tozalash</button>
+          </div>
+
+          <div id="historyList" class="history-list"></div>
+
+          <div class="source-box">
+            <h3>Manbalar</h3>
+            <ul>
+              <li><a href="https://lex.uz/uz/docs/-7357270" target="_blank" rel="noreferrer">VM 55, Bojxona yig'imlari stavkalari</a></li>
+              <li><a href="https://cbu.uz/uz/arkhiv-kursov-valyut/json/USD/" target="_blank" rel="noreferrer">CBU JSON USD kursi</a></li>
+            </ul>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
